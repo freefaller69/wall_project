@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- Google fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=BioRhyme" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Rock+Salt" rel="stylesheet">
+
+
+  <!-- css stylesheets -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  <link rel="stylesheet" href="{% static 'wall/css/style.css' %}">
+
+  <title>The Wall</title>
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="navbar-form navbar-right">
+            <li><a href="{% url 'wall:wall' %}" class="button">The Wall</a></li>
+            <li><a href="{% url 'wall:logout' %}" class="button">Log out</a></li>
+          </ul>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <header class="jumbotron jumboText">
+      <div class="container textOverImg">
+        <h1>The Wall{% if "user" in request.session %} - Hello {{ request.session.user.first_name }} {% endif %}</h1>
+        <p></p>
+      </div>
+    </header>
+
+    <div id="main" class="container">
+
+      <div id="post" class="row">
+        <div class="container col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <form action="post_message" method="POST" class="form-signin">
+            <label class="msg">Post a message
+              {% if messages %}
+              {% for message in messages%}
+              <p class="error">{{ message }}</p>
+              {% endfor %}
+              {% endif %}
+            </label>
+            <p class="error">{{ message }}</p>
+            <textarea rows="4" cols="90" name="message_input" class="message"></textarea>
+            {% csrf_token %}
+            <button class="btn btn-md btn-primary btn-block submit" name="wall_posts" value="message_submit" type="submit">Submit</button>
+        </form>
+        </div>
+      </div>
+      <div class="row">
+        <div id="messages" class="container col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          {% if user_messages %}
+          {% for msg in user_messages %}
+          <h5><a href="user/{{ msg.user_id.id }}">{{ msg.user_id.first_name }} {{ msg.user_id.last_name }}</a>  - {{ msg.created_at }}</h5>
+          <p class="msg">{{ msg.message }}</p>
+
+          <div id="comments" class="container toggle col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <ul>
+              {% if user_comments %}
+              {% for comment in user_comments %}
+              {% if msg.id == comment.message_id.id %}
+              <h5><a href="user/{{ comment.user_id.id }}">{{ comment.user_id.first_name }} {{ comment.user_id.last_name }}</a> - {{ comment.created_at }}</h5>
+              <li>{{ comment.comment }}</li>
+              {% endif %}
+              {% endfor %}
+              {% endif %}
+            </ul>
+            </div>
+            <div>
+              <h6 class="comment_label">Post a comment</h6>
+              <form class="comment_form" action="post_message" method="POST">
+
+                {% if messages %}
+                {% for message in messages%}
+                <p class="error">{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                <input type="hidden" name="message_id" value="{{ msg.id }}">
+                <textarea rows="1" cols="60" name="comment_input" class="comment"></textarea>
+                {% csrf_token %}
+                <button class="btn btn-sm btn-primary submit" name="wall_posts" value="comment_submit" type="submit">Submit</button>
+              </form>
+              <div class="separator"></div>
+              {% endfor %}
+              {% endif %}
+            </div>
+        </div>
+      </div>
+
+    </div> <!-- /container -->
+
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js">
+  </script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="{% static 'wall/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'wall/js/scripts.js' %}"></script>
+
+</body>
+</html>
